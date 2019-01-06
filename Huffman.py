@@ -1,5 +1,4 @@
 # Compressing Text
-from random import randint
 
 
 class TreeNode():
