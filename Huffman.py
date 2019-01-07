@@ -23,7 +23,8 @@ class Heap_Utils():
 
     def insert_node(self, heap, node):
         if len(heap) == 0:
-            return heap.append(node)
+            new_heap = [node]
+            return new_heap
         else:
             heap.append(node)
             new_heap = self.heapify(heap)
@@ -41,15 +42,19 @@ class Heap_Utils():
         return array
 
     def pop_2(self, heap):
-        if len(heap) == 1:
-            return ((heap[0], None), None)
-        elif len(heap) == 2:
-            return ((heap[0], heap[1]), None)
-        min_1 = heap[0]
-        min_2 = heap[1] if heap[1].freq < heap[2].freq else heap[2]
-
-        heap = self.heapify(heap[1:])
-        return ((min_1, min_2), heap)
+        length = len(heap)
+        min_1, min_2 = None, None
+        if length >= 3:
+            min_1 = heap[0]
+            min_2 = heap[1] if heap[1].freq < heap[2].freq else heap[2]
+            heap = self.heapify(heap[2:])
+            return (min_1, min_2, heap)
+        elif length == 2:
+            min_1, min_2 = heap[0], heap[1]
+            return (min_1, min_2, [])
+        elif length == 1:
+            min_1 = heap[0]
+            return (min_1, None, [])
 
     def set_child(self, parent, child):
         if parent.l_child is None:
@@ -87,10 +92,13 @@ class HuffmanCoding():
     def pop_min_vals(self, heap):
         min_heap = Heap_Utils()
         pop = min_heap.pop_2(heap)
-        sum = pop[0][0].freq + pop[0][1].freq
-        new_node = HeapNode(None, sum)
-        final_heap = min_heap.insert_node(pop[1], new_node)
-        return (pop[0], final_heap)
+        sum = pop[0].freq + pop[1].freq if pop[1] is not None else pop[0].freq
+        if len(heap) != 1:
+            new_node = HeapNode(None, sum)
+            new_heap = min_heap.insert_node(pop[2], new_node)
+        else:
+            new_heap = []
+        return (pop[0], pop[1], new_heap)
 
 
 def create_tree(text):
@@ -100,7 +108,24 @@ def create_tree(text):
     freq_dict = Coder.frequency_dict(text)
     freq_array = Coder.frequency_array(freq_dict)
     min_heap = Heap.heapify(freq_array)
-    min_vals = Coder.pop_min_vals(min_heap)
+    min_nodes = Coder.pop_min_vals(min_heap)
+
+    sum = min_nodes[0].freq + min_nodes[1].freq
+    l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq, None, None)
+    r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq, None, None)
+    current_root = TreeNode(None, sum, l_child, r_child)
+
+    while len(min_nodes[2]) != 0:
+        min_nodes = Coder.pop_min_vals(min_nodes[2])
+        sum = min_nodes[0].freq + \
+            min_nodes[1].freq if min_nodes[1] is not None else min_nodes[0].freq
+        l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq,
+                           None, None) if min_nodes[0] is not None else None
+        r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq,
+                           None, None) if min_nodes[1] is not None else None
+        current_root = TreeNode(None, sum, l_child, r_child)
+
+    return current_root
 
 
 '''
@@ -114,6 +139,7 @@ ar = comp.frequency_array(dict)
 print(dict)
 heap_ar = heap.heapify(ar)
 '''
-text = "th"
-head = create_tree(text)
-print(head)
+text = "thedsadas"
+
+test = create_tree(text)
+print(test.char)
