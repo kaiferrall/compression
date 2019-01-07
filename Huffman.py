@@ -110,13 +110,15 @@ def create_tree(text):
     min_heap = Heap.heapify(freq_array)
     min_nodes = Coder.pop_min_vals(min_heap)
 
-    sum = min_nodes[0].freq + min_nodes[1].freq
-    l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq, None, None)
-    r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq, None, None)
+    sum = min_nodes[0].freq + \
+            min_nodes[1].freq if min_nodes[1] is not None else min_nodes[0].freq
+    l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq,
+                           None, None) if min_nodes[0] is not None else None
+    r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq,
+                           None, None) if min_nodes[1] is not None else None
     current_root = TreeNode(None, sum, l_child, r_child)
 
     while len(min_nodes[2]) != 0:
-        min_nodes = Coder.pop_min_vals(min_nodes[2])
         sum = min_nodes[0].freq + \
             min_nodes[1].freq if min_nodes[1] is not None else min_nodes[0].freq
         l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq,
@@ -124,6 +126,7 @@ def create_tree(text):
         r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq,
                            None, None) if min_nodes[1] is not None else None
         current_root = TreeNode(None, sum, l_child, r_child)
+        min_nodes = Coder.pop_min_vals(min_nodes[2])
 
     return current_root
 
@@ -141,5 +144,5 @@ heap_ar = heap.heapify(ar)
 '''
 text = "thedsadas"
 
-test = create_tree(text)
-print(test.char)
+test = create_tree("k")
+print(test.r_child)
