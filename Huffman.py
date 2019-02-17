@@ -1,12 +1,3 @@
-# Compressing Text
-
-
-class HeapNode():
-    def __init__(self, char, freq):
-        self.char = char
-        self.freq = freq
-
-
 class TreeNode():
     def __init__(self, char, freq, l_child, r_child):
         self.char = char
@@ -34,8 +25,8 @@ class Heap_Utils():
         j = 0
         for i in range(1, len(array)):
             if array[i].freq < array[self.parent(i)].freq:
-                array[i].freq, array[self.parent(
-                    i)].freq = array[self.parent(i)].freq, array[i].freq
+                array[i], array[self.parent(
+                    i)] = array[self.parent(i)], array[i]
                 j += 1
             if j != 0:
                 self.heapify(array)
@@ -46,7 +37,7 @@ class Heap_Utils():
         min_1, min_2 = None, None
         if length >= 3:
             min_1 = heap[0]
-            min_2 = heap[1] if heap[1].freq < heap[2].freq else heap[2]
+            min_2 = heap[1] if heap[1].freq <= heap[2].freq else heap[2]
             heap = self.heapify(heap[2:])
             return (min_1, min_2, heap)
         elif length == 2:
@@ -56,15 +47,8 @@ class Heap_Utils():
             min_1 = heap[0]
             return (min_1, None, [])
 
-    def set_child(self, parent, child):
-        if parent.l_child is None:
-            parent.l_child = child
-        else:
-            parent.r_child = child
-
 
 class HuffmanCoding():
-
     def string_to_binary(self, str):
         bit_str = ""
         for char in str:
@@ -85,7 +69,7 @@ class HuffmanCoding():
     def frequency_array(self, dict):
         freq_array = []
         for key in dict:
-            node = HeapNode(key, dict[key])
+            node = TreeNode(key, dict[key], None, None)
             freq_array.append(node)
         return freq_array
 
@@ -93,56 +77,31 @@ class HuffmanCoding():
         min_heap = Heap_Utils()
         pop = min_heap.pop_2(heap)
         sum = pop[0].freq + pop[1].freq if pop[1] is not None else pop[0].freq
-        if len(heap) != 1:
-            new_node = HeapNode(None, sum)
-            new_heap = min_heap.insert_node(pop[2], new_node)
-        else:
-            new_heap = []
-        return (pop[0], pop[1], new_heap)
+        new_node = TreeNode(None, sum, pop[0], pop[1])
+        new_heap = min_heap.insert_node(pop[2], new_node)
+        return new_heap
 
 
-def create_tree(text):
-    Coder = HuffmanCoding()
-    Heap = Heap_Utils()
-
-    freq_dict = Coder.frequency_dict(text)
-    freq_array = Coder.frequency_array(freq_dict)
-    min_heap = Heap.heapify(freq_array)
-    min_nodes = Coder.pop_min_vals(min_heap)
-
-    sum = min_nodes[0].freq + \
-            min_nodes[1].freq if min_nodes[1] is not None else min_nodes[0].freq
-    l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq,
-                           None, None) if min_nodes[0] is not None else None
-    r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq,
-                           None, None) if min_nodes[1] is not None else None
-    current_root = TreeNode(None, sum, l_child, r_child)
-
-    while len(min_nodes[2]) != 0:
-        sum = min_nodes[0].freq + \
-            min_nodes[1].freq if min_nodes[1] is not None else min_nodes[0].freq
-        l_child = TreeNode(min_nodes[0].char, min_nodes[0].freq,
-                           None, None) if min_nodes[0] is not None else None
-        r_child = TreeNode(min_nodes[1].char, min_nodes[1].freq,
-                           None, None) if min_nodes[1] is not None else None
-        current_root = TreeNode(None, sum, l_child, r_child)
-        min_nodes = Coder.pop_min_vals(min_nodes[2])
-
-    return current_root
+coder = HuffmanCoding()
+utils = Heap_Utils()
 
 
-'''
-comp = HuffmanCoding()
-heap = Heap_Utils()
+def create_tree():
+    dict = coder.frequency_dict("this is some random text")
+    array = coder.frequency_array(dict)
+    heap = utils.heapify(array)
+    for i in heap:
+        print((i.char, i.freq))
+    while len(heap) > 1:
+        heap = coder.pop_min_vals(heap)
+    print("-----------")
+    return heap
+def traverse_left(tree):
+    current_node = tree[0]
+    while current_node is not None:
+        print((current_node.char, current_node.freq))
+        current_node = current_node.l_child
 
-binary = comp.string_to_binary("this is somne random string here snad")
-dict = comp.frequency_dict("this is somne random string here snad")
 
-ar = comp.frequency_array(dict)
-print(dict)
-heap_ar = heap.heapify(ar)
-'''
-text = "thedsadas"
-
-test = create_tree("k")
-print(test.r_child)
+tree = create_tree()
+traverse_left(tree)
